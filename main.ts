@@ -8,7 +8,7 @@ export const loop = function ()
 {
     //**************************************************
     // Global Variables
-    var totalDesiredHarvesters    = 2;
+    var totalDesiredHarvesters    = 1;
     var totalDesiredBuilders      = 2;
     var totalDesiredUpgraders     = 2;
 
