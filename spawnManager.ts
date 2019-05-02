@@ -20,7 +20,6 @@ class unitTemplate
       }
 }
 
-// let t1BuilderTemplate   = new unitTemplate([WORK,MOVE,CARRY], 200);
 let t1HarvesterTemplate = new unitTemplate("t1Harvester", [WORK,MOVE,CARRY], 200);
 let t2HarvesterTemplate = new unitTemplate("t2Harvester", [WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], 550);
 let t3HarvesterTemplate = new unitTemplate("t3Harvester", [WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], 800);
@@ -30,6 +29,28 @@ var harvesterTemplates: unitTemplate[] =
     t1HarvesterTemplate,
     t2HarvesterTemplate,
     t3HarvesterTemplate
+];
+
+let t1BuilderTemplate = new unitTemplate("t1Builder", [WORK,MOVE,CARRY], 200);
+let t2BuilderTemplate = new unitTemplate("t2Builder", [WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], 550);
+let t3BuilderTemplate = new unitTemplate("t3Builder", [WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], 800);
+
+var builderTemplates: unitTemplate[] =
+[
+    t1BuilderTemplate,
+    t2BuilderTemplate,
+    t3BuilderTemplate
+];
+
+let t1UpgraderTemplate = new unitTemplate("t1Upgrader", [WORK,MOVE,CARRY], 200);
+let t2UpgraderTemplate = new unitTemplate("t2Upgrader", [WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], 550);
+let t3UpgraderTemplate = new unitTemplate("t3Upgrader", [WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], 800);
+
+var upgraderTemplates: unitTemplate[] =
+[
+    t1UpgraderTemplate,
+    t2UpgraderTemplate,
+    t3UpgraderTemplate
 ];
 
 module.exports = {
@@ -63,8 +84,9 @@ module.exports = {
         let currentTemplate: unitTemplate = harvesterTemplates[0];
         for( let i in harvesterTemplates)
         {
-            if( spawnManager.getTotalEnergyCapacity() >  harvesterTemplates[i].requiredEnergy )
+            if( spawnManager.getTotalEnergyCapacity() >=  harvesterTemplates[i].requiredEnergy )
             {
+                console.log("TotalEnergyCapacity is greater than required energy!");
                 currentTemplate = harvesterTemplates[i]
             }
             else break;
@@ -92,32 +114,72 @@ module.exports = {
 
     spawnBuilder: function()
     {
-        var newName = 'Builder' + Game.time;
-        if( Game.spawns['Spawn1'].spawnCreep(
-            //[WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE],
-            [WORK,CARRY,MOVE],
-            newName,
-            {
-                memory: {role: 'builder'}
-            }) == OK )
+        var spawnManager = require("spawnManager");
+
+        // Choose current template
+        let currentTemplate: unitTemplate = builderTemplates[0];
+        for( let i in builderTemplates)
         {
-            console.log('Spawning new builder: ' + newName);
+            if( spawnManager.getTotalEnergyCapacity() >=  builderTemplates[i].requiredEnergy )
+            {
+                currentTemplate = builderTemplates[i]
+            }
+            else break;
         }
+
+        console.log("Chosen Builder Template: " + currentTemplate.name + " [" + currentTemplate.body + "] (" + currentTemplate.requiredEnergy + ")");
+
+        if(spawnManager.getTotalCurrentEnergy() >= currentTemplate.requiredEnergy)
+        {
+            // Spawn Builder based on chosen template
+            let newName: string = currentTemplate.name + Game.time;
+            if( Game.spawns['Spawn1'].spawnCreep(
+                currentTemplate.body,
+                newName,
+                {
+                    memory: {role: 'builder'}
+                }) == OK )
+            {
+                console.log('Spawning new builder: ' + newName);
+            }
+        }
+        else console.log("Insufficient energy to spawn " + currentTemplate.name + ". Needed " + currentTemplate.requiredEnergy + " energy, but only had " + spawnManager.getTotalCurrentEnergy() + " total energy.");
+
     },
 
     spawnUpgrader: function()
     {
-        var newName = 'Upgrader' + Game.time;
-        if( Game.spawns['Spawn1'].spawnCreep(
-            //[WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE],
-            [WORK,CARRY,MOVE],
-            newName,
-            {
-                memory: {role: 'upgrader'}
-            }) == OK )
+        var spawnManager = require("spawnManager");
+
+        // Choose current template
+        let currentTemplate: unitTemplate = upgraderTemplates[0];
+        for( let i in upgraderTemplates)
         {
-            console.log('Spawning new upgrader: ' + newName);
+            if( spawnManager.getTotalEnergyCapacity() >=  upgraderTemplates[i].requiredEnergy )
+            {
+                currentTemplate = upgraderTemplates[i]
+            }
+            else break;
         }
+
+        console.log("Chosen Upgrader Template: " + currentTemplate.name + " [" + currentTemplate.body + "] (" + currentTemplate.requiredEnergy + ")");
+
+        if(spawnManager.getTotalCurrentEnergy() >= currentTemplate.requiredEnergy)
+        {
+            // Spawn Upgrader based on chosen template
+            let newName: string = currentTemplate.name + Game.time;
+            if( Game.spawns['Spawn1'].spawnCreep(
+                currentTemplate.body,
+                newName,
+                {
+                    memory: {role: 'upgrader'}
+                }) == OK )
+            {
+                console.log('Spawning new upgrader: ' + newName);
+            }
+        }
+        else console.log("Insufficient energy to spawn " + currentTemplate.name + ". Needed " + currentTemplate.requiredEnergy + " energy, but only had " + spawnManager.getTotalCurrentEnergy() + " total energy.");
+
     },
 
     //**************************************************
@@ -134,10 +196,10 @@ module.exports = {
             switch( currentStructureType )
             {
                 case STRUCTURE_SPAWN:
-                    totalEnergyCapacity =+ (<StructureSpawn>(Game.getObjectById(currentStructure.id))).energyCapacity;
+                    totalEnergyCapacity += (<StructureSpawn>(Game.getObjectById(currentStructure.id))).energyCapacity;
                     break;
                 case STRUCTURE_EXTENSION:
-                    totalEnergyCapacity =+ (<StructureExtension>(Game.getObjectById(currentStructure.id))).energyCapacity;
+                    totalEnergyCapacity += (<StructureExtension>(Game.getObjectById(currentStructure.id))).energyCapacity;
                     break;
                 default:
                     break;
