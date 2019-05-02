@@ -17,7 +17,7 @@ class unitTemplate
         this.requiredEnergy = requiredEnergy;
       }
 }
-
+// ugh
 // let t1BuilderTemplate   = new unitTemplate([WORK,MOVE,CARRY], 200);
 let t1HarvesterTemplate = new unitTemplate([WORK,MOVE,CARRY], 200);
 let t2HarvesterTemplate = new unitTemplate([WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], 550);
