@@ -1,40 +1,33 @@
 var roleBuilder = {
 
     /** @param {Creep} creep **/
-    run: function(creep) 
+    run: function(creep)
     {
+        var creepTasks = require("creepTasks");
 
+        // Set states
 	    if(creep.memory.building && creep.carry.energy == 0)
 	    {
             creep.memory.building = false;
             creep.say('🔄 harvest');
 	    }
-	    if(!creep.memory.building && creep.carry.energy == creep.carryCapacity) 
+	    if(!creep.memory.building && creep.carry.energy == creep.carryCapacity && Game.constructionSites)
 	    {
 	        creep.memory.building = true;
 	        creep.say('🚧 build');
 	    }
 
-	    if(creep.memory.building) 
+        // Behavior
+	    if(creep.memory.building)
 	    {
-            var target = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
-            if(target) 
-            {
-                if(creep.build(target) == ERR_NOT_IN_RANGE) 
-                {
-                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
-                }
-            }
+            creepTasks.buildNearestConstructionSite(creep);
+
 	    }
-	    else 
+	    else if( creep.carry.energy != creep.carryCapacity )
 	    {
-	        // var sources = creep.room.find(FIND_SOURCES);
-	        var source = Game.spawns["Spawn1"].pos.findClosestByPath(FIND_SOURCES);
-            if(creep.harvest(source) == ERR_NOT_IN_RANGE) 
-            {
-                creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
-            }
-	    }
+            creepTasks.harvestEnergy(creep);
+        }
+        else creepTasks.returnEnergy(creep);
 	}
 };
 
