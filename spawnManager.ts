@@ -121,11 +121,11 @@ module.exports = {
             switch( currentStructureType )
             {
                 case STRUCTURE_SPAWN:
-                    // totalEnergyCapacity =+ StructureSpawn(Game.getObjectById(currentStructure.id)).energyCapacity;
+                    totalEnergyCapacity =+ (<StructureSpawn>(Game.getObjectById(currentStructure.id))).energyCapacity;
                     totalEnergyCapacity =+ 300; // TODO: Figure out the above line...
                     break;
                 case STRUCTURE_EXTENSION:
-                    // totalEnergyCapacity =+ StructureExtension(Game.getObjectById(currentStructure.id)).energyCapacity;
+                    totalEnergyCapacity =+ (<StructureExtension>(Game.getObjectById(currentStructure.id))).energyCapacity;
                     totalEnergyCapacity =+ 50; // TODO: Figure out the above line...
                     break;
                 default:
