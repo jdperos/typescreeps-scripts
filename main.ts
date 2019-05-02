@@ -8,7 +8,7 @@ export const loop = function ()
 {
     //**************************************************
     // Global Variables
-    var totalDesiredHarvesters    = 1;
+    var totalDesiredHarvesters    = 2;
     var totalDesiredBuilders      = 2;
     var totalDesiredUpgraders     = 2;
 
@@ -58,12 +58,12 @@ export const loop = function ()
         spawnManager.spawnUnit("Harvester");
     }
 
-    if(builders.length < totalDesiredBuilders)
+    if(builders.length < totalDesiredBuilders && harvesters.length == totalDesiredHarvesters)
     {
         spawnManager.spawnUnit("Builder");
     }
 
-    if(upgraders.length < totalDesiredUpgraders)
+    if(upgraders.length < totalDesiredUpgraders && harvesters.length == totalDesiredHarvesters)
     {
         spawnManager.spawnUnit("Upgrader");
     }

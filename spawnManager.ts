@@ -9,19 +9,21 @@
 
 class unitTemplate
 {
-    body: null;
+    name: string;
+    body: string[];
     requiredEnergy: number;
 
-    constructor( body, requiredEnergy:number ) {
+    constructor( name: string, body: string[], requiredEnergy:number ) {
+        this.name           = name;
         this.body           = body;
         this.requiredEnergy = requiredEnergy;
       }
 }
-// ugh butts
+
 // let t1BuilderTemplate   = new unitTemplate([WORK,MOVE,CARRY], 200);
-let t1HarvesterTemplate = new unitTemplate([WORK,MOVE,CARRY], 200);
-let t2HarvesterTemplate = new unitTemplate([WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], 550);
-let t3HarvesterTemplate = new unitTemplate([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], 800);
+let t1HarvesterTemplate = new unitTemplate("t1Harvester", [WORK,MOVE,CARRY], 200);
+let t2HarvesterTemplate = new unitTemplate("t2Harvester", [WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], 550);
+let t3HarvesterTemplate = new unitTemplate("t3Harvester", [WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], 800);
 
 var harvesterTemplates: unitTemplate[] =
 [
@@ -51,12 +53,14 @@ module.exports = {
         }
     },
 
+    //**************************************************
+    // Spawning
     spawnHarvester: function()
     {
         var spawnManager = require("spawnManager");
 
         // Choose current template
-        let currentTemplate: unitTemplate;
+        let currentTemplate: unitTemplate = harvesterTemplates[0];
         for( let i in harvesterTemplates)
         {
             if( spawnManager.getTotalEnergyCapacity() >  harvesterTemplates[i].requiredEnergy )
@@ -66,17 +70,24 @@ module.exports = {
             else break;
         }
 
-        // Spawn Harvester based on chosen template
-        let newName: string = 'Harvester' + Game.time;
-        if( Game.spawns['Spawn1'].spawnCreep(
-            currentTemplate.body,
-            newName, // TODO: find a way to automate naming from templates
-            {
-                memory: {role: 'harvester'}
-            }) == OK )
+        console.log("Chosen Harvester Template: " + currentTemplate.name + " [" + currentTemplate.body + "] (" + currentTemplate.requiredEnergy + ")");
+
+        if(spawnManager.getTotalCurrentEnergy() >= currentTemplate.requiredEnergy)
         {
-            console.log('Spawning new harvester: ' + newName);
+            // Spawn Harvester based on chosen template
+            let newName: string = currentTemplate.name + Game.time;
+            if( Game.spawns['Spawn1'].spawnCreep(
+                currentTemplate.body,
+                newName,
+                {
+                    memory: {role: 'harvester'}
+                }) == OK )
+            {
+                console.log('Spawning new harvester: ' + newName);
+            }
         }
+        else console.log("Insufficient energy to spawn " + currentTemplate.name + ". Needed " + currentTemplate.requiredEnergy + " energy, but only had " + spawnManager.getTotalCurrentEnergy() + " total energy.");
+
     },
 
     spawnBuilder: function()
@@ -109,6 +120,8 @@ module.exports = {
         }
     },
 
+    //**************************************************
+    // Helper functions
     getTotalEnergyCapacity: function()
     {
         let totalEnergyCapacity: number = 0;
@@ -131,5 +144,28 @@ module.exports = {
             }
         }
         return totalEnergyCapacity;
+    },
+
+    getTotalCurrentEnergy: function()
+    {
+        let totalCurrentEnergy: number = 0;
+        for(let i in Game.structures)
+        {
+            // there has GOT to be a better way of doing this
+            let currentStructure: Structure = Game.structures[i];
+            let currentStructureType: string = Game.structures[i].structureType;
+            switch( currentStructureType )
+            {
+                case STRUCTURE_SPAWN:
+                    totalCurrentEnergy += (<StructureSpawn>(Game.getObjectById(currentStructure.id))).energy;
+                    break;
+                case STRUCTURE_EXTENSION:
+                    totalCurrentEnergy += (<StructureExtension>(Game.getObjectById(currentStructure.id))).energy;
+                    break;
+                default:
+                    break;
+            }
+        }
+        return totalCurrentEnergy;
     }
 };
