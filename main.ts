@@ -40,9 +40,9 @@ export const loop = function ()
     var harvesters    = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester'   );
     var builders      = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder'     );
     var upgraders     = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader'    );
-    console.log('Harvesters: ' + harvesters.length);
-    console.log('Builders: '   + builders.length  );
-    console.log('Upgraders: '  + upgraders.length );
+    //console.log('Harvesters: ' + harvesters.length);
+    //console.log('Builders: '   + builders.length  );
+    //console.log('Upgraders: '  + upgraders.length );
 
     //var extensions = _.filter(Game.structures, (Structure) => Structure.structureType == "STRUCTURE+EXTENSION" );
     //var extensions = Game.structures;
@@ -55,17 +55,17 @@ export const loop = function ()
 
     if(harvesters.length < totalDesiredHarvesters)
     {
-        spawnManager.spawnHarvester();
+        spawnManager.spawnUnit("Harvester");
     }
 
     if(builders.length < totalDesiredBuilders)
     {
-        spawnManager.spawnBuilder();
+        spawnManager.spawnUnit("Builder");
     }
 
     if(upgraders.length < totalDesiredUpgraders)
     {
-        spawnManager.spawnUpgrader();
+        spawnManager.spawnUnit("Upgrader");
     }
 
     if(Game.spawns['Spawn1'].spawning) {
